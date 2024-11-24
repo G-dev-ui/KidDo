@@ -10,7 +10,7 @@
         android:id="@+id/out_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="32dp"
         android:src="@drawable/baseline_exit_to_app_24"
 
         app:layout_constraintStart_toStartOf="parent"
@@ -25,11 +25,12 @@
         tools:layout_editor_absoluteY="-34dp" />
 
     <ImageView
+        android:id="@+id/btn_acc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/baseline_account_circle_24"
 
-         android:layout_margin="16dp"
+         android:layout_margin="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

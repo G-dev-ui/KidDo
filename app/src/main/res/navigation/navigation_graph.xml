@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_homeFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_account_SwitchingFragment"
+            app:destination="@id/account_SwitchingFragment" />
     </fragment>
     <fragment
         android:id="@+id/creatingAccFragment"
@@ -38,4 +41,9 @@
             android:id="@+id/action_creatingAccFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/account_SwitchingFragment"
+        android:name="com.example.kiddo.ui.Account_SwitchingFragment"
+        android:label="fragment_account__switching"
+        tools:layout="@layout/fragment_account__switching" />
 </navigation>

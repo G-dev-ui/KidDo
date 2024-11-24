@@ -25,6 +25,10 @@ class HomeFragment : Fragment() {
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        binding.btnAcc.setOnClickListener {
+            findNavController().navigate(R.id.action_homeFragment_to_account_SwitchingFragment)
+        }
+
         // Обработчик нажатия на кнопку "Выход"
         binding.outBtn.setOnClickListener {
             // Вызываем метод logout() из AuthViewModel
