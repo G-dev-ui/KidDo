@@ -38,6 +38,10 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.registerTextView.setOnClickListener {
+            findNavController().navigate(R.id.action_registrationFragment_to_creatingAccFragment)
+        }
+
         // Обработчик кнопки для регистрации или входа
         binding.loginButton.setOnClickListener {
             val email = binding.emailEditText.editText?.text.toString().trim()
