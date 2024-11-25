@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.androidx.material3.android)
     implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.firebase.database.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

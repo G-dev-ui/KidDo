@@ -20,6 +20,7 @@ playServicesAuth = "21.2.0"
 playServicesSafetynet = "18.1.0"
 material3Android = "1.3.1"
 playServicesMlkitTextRecognitionCommon = "19.1.0"
+firebaseDatabaseKtx = "21.0.0"
 
 [libraries]
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
@@ -42,6 +43,7 @@ play-services-auth = { module = "com.google.android.gms:play-services-auth", ver
 play-services-safetynet = { module = "com.google.android.gms:play-services-safetynet", version.ref = "playServicesSafetynet" }
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 play-services-mlkit-text-recognition-common = { group = "com.google.android.gms", name = "play-services-mlkit-text-recognition-common", version.ref = "playServicesMlkitTextRecognitionCommon" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

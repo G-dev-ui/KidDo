@@ -20,7 +20,13 @@ class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
     val authState: LiveData<Result<String>> get() = _authState
 
     // Регистрация пользователя
-    fun registerUser(email: String, password: String, name: String, dateOfBirth: String, role: String) {
+    fun registerUser(
+        email: String,
+        password: String,
+        name: String,
+        dateOfBirth: String,
+        role: String
+    ) {
         viewModelScope.launch {
             _authState.value = try {
                 // Регистрация в Firebase Authentication
@@ -29,12 +35,16 @@ class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
                 // Добавляем данные в Firestore
                 val userId = auth.currentUser?.uid
                 if (userId != null) {
+                    // Данные пользователя
                     val userData = mapOf(
                         "name" to name,
                         "email" to email,
                         "dateOfBirth" to dateOfBirth,
-                        "role" to role
+                        "role" to "Родитель",  // Устанавливаем роль как "Родитель"
+                        "childrenIds" to mutableListOf<String>()  // Инициализируем пустой список детей
                     )
+
+                    // Сохраняем данные в Firestore
                     firestore.collection("users").document(userId).set(userData).await()
                 }
 

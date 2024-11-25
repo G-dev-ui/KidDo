@@ -43,4 +43,10 @@ class AccountAdapter(
             notifyItemRemoved(position)
         }
     }
+
+    fun addAccounts(accounts: List<Account>) {
+        accountList.clear() // Очищаем старый список (если нужно)
+        accountList.addAll(accounts)
+        notifyDataSetChanged() // Обновляем адаптер
+    }
 }

@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/account_SwitchingFragment"
-        android:name="com.example.kiddo.ui.Account_SwitchingFragment"
+        android:name="com.example.kiddo.ui.AccountSwitchingFragment"
         android:label="fragment_account__switching"
         tools:layout="@layout/fragment_account__switching" />
 </navigation>
