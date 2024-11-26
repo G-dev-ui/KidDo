@@ -8,7 +8,7 @@ class CreateChildAccountUseCaseImpl(
     private val userRepository: UserRepository
 ) : CreateChildAccountUseCase {
     override suspend fun invoke(parentId: String, child: ChildAccount): Boolean {
-        val childUser = User(name = child.name, role = "Child") // Преобразуем модель
+        val childUser = User(name = child.name, role = "Child", id = "") // Преобразуем модель
         return userRepository.createChildAccount(parentId, childUser)
     }
 }

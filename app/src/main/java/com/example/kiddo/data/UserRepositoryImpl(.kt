@@ -3,6 +3,7 @@ package com.example.kiddo.data
 import android.util.Log
 import com.example.kiddo.domain.model.User
 import com.example.kiddo.domain.api.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -13,7 +14,9 @@ class UserRepositoryImpl(
         return try {
             val document = firestore.collection("users").document(userId).get().await()
             if (document.exists()) {
+                // Используем document.id как уникальный идентификатор
                 User(
+                    id = document.id,  // Уникальный идентификатор для каждого пользователя
                     name = document.getString("name") ?: "Unknown",
                     role = document.getString("role") ?: "Unknown"
                 )
@@ -29,10 +32,16 @@ class UserRepositoryImpl(
         return try {
             Log.d("UserRepository", "Creating child account for parent: $parentId")
 
-            // Генерация ID для ребенка
-            val childId = firestore.collection("users").document().id
+            // 1. Регистрируем анонимного пользователя для ребенка
+            val authResult = FirebaseAuth.getInstance().signInAnonymously().await()
+            val childId = authResult.user?.uid // Получаем ID анонимного ребенка
 
-            // Данные для документа ребенка
+            if (childId == null) {
+                Log.e("UserRepository", "Failed to create anonymous user for child.")
+                return false
+            }
+
+            // 2. Создаем запись для ребенка в Firestore
             val childData = hashMapOf(
                 "name" to child.name,
                 "role" to "Child", // Роль фиксируем как "Child"
@@ -43,14 +52,14 @@ class UserRepositoryImpl(
             firestore.collection("users").document(childId).set(childData).await()
             Log.d("UserRepository", "Child account created with ID: $childId")
 
-            // Получаем ссылку на родителя
+            // 3. Получаем ссылку на родителя
             val parentDocRef = firestore.collection("users").document(parentId)
 
             // Проверяем, существует ли родительский документ
             val parentDocument = parentDocRef.get().await()
 
             if (parentDocument.exists()) {
-                // Если родитель существует, проверяем поле childrenIds
+                // 4. Если родитель существует, проверяем поле childrenIds
                 val childrenIds = parentDocument.get("childrenIds") as? MutableList<String> ?: mutableListOf()
 
                 // Добавляем новый ID ребенка в список
@@ -119,6 +128,7 @@ class UserRepositoryImpl(
 
                         // Добавляем данные ребенка в список
                         val child = User(
+                            id = childId,
                             name = childName,
                             role = childRole
                         )

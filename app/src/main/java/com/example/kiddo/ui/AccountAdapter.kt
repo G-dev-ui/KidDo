@@ -1,14 +1,16 @@
 package com.example.kiddo.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kiddo.R
 
-data class Account(val name: String, val role: String)
+data class Account(val name: String, val role: String,val id: String)
 
 class AccountAdapter(
-    private val accountList: MutableList<Account>
+    private val accountList: MutableList<Account>,
+    private val onItemClick: (String) -> Unit // Передаем ID ребенка
 ) : RecyclerView.Adapter<ItemAccountViewHolder>() {
 
     // Создание ViewHolder из XML
@@ -23,8 +25,11 @@ class AccountAdapter(
         val account = accountList[position]
         holder.name.text = account.name
         holder.role.text = account.role
-        // Пример, если нужно установить изображение:
-        holder.profileImage.setImageResource(R.drawable.baseline_people_24)
+        holder.itemView.setOnClickListener {
+            Log.d("AccountAdapter", "Item clicked: ${account.name}, ID: ${account.id}")
+            // Передаем ID аккаунта, на который кликнули
+            onItemClick(account.id) // Здесь передаем ID
+        }
     }
 
     // Количество элементов в списке

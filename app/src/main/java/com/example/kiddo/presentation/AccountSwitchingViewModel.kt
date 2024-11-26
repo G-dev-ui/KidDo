@@ -9,11 +9,13 @@ import com.example.kiddo.domain.CreateChildAccountUseCase
 import com.example.kiddo.domain.GetChildrenForParentUseCase
 import com.example.kiddo.domain.model.User
 import com.example.kiddo.domain.GetUserUseCase
+import com.example.kiddo.domain.api.UserRepository
 import com.example.kiddo.domain.model.ChildAccount
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class AccountSwitchingViewModel(
+    private val userRepository: UserRepository,
     private val getChildrenForParentUseCase: GetChildrenForParentUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val auth: FirebaseAuth,
@@ -29,6 +31,9 @@ class AccountSwitchingViewModel(
 
     private val _children = MutableLiveData<List<User>>()
     val children: LiveData<List<User>> get() = _children
+
+    private val _currentAccount = MutableLiveData<User?>()  // Изменили на User?
+    val currentAccount: LiveData<User?> = _currentAccount  // Соответственно и здесь
 
     fun fetchUserData() {
         val currentUserId = auth.currentUser?.uid
@@ -95,4 +100,23 @@ class AccountSwitchingViewModel(
             }
         }
     }
+
+    fun switchToChildAccount(accountId: String) {
+        // Получаем данные для нового аккаунта (можно, например, делать запрос в базу данных)
+        viewModelScope.launch {
+            try {
+                // Проверяем, что метод userRepository.getUserData(accountId) возвращает данные
+                val userData = userRepository.getUserData(accountId)
+                if (userData != null) {
+                    // Обновляем данные пользователя в LiveData
+                    _user.value = userData
+                } else {
+                    _error.value = "Пользователь с ID $accountId не найден"
+                }
+            } catch (e: Exception) {
+                _error.value = "Ошибка при переключении аккаунта: ${e.message}"
+            }
+        }
+    }
+
 }
