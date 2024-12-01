@@ -18,7 +18,8 @@ class UserRepositoryImpl(
                 User(
                     id = document.id,  // Уникальный идентификатор для каждого пользователя
                     name = document.getString("name") ?: "Unknown",
-                    role = document.getString("role") ?: "Unknown"
+                    role = document.getString("role") ?: "Unknown",
+                    familyId = document.getString("familyId")
                 )
             } else {
                 null
@@ -28,52 +29,59 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun createChildAccount(parentId: String, child: User): Boolean {
+    override suspend fun createChildAccount(
+        parentId: String,
+        child: User,
+        email: String,
+        password: String
+    ): Boolean {
         return try {
-            Log.d("UserRepository", "Creating child account for parent: $parentId")
+            Log.d("UserRepository", "Creating child account for parent: $parentId with email: $email")
 
-            // 1. Регистрируем анонимного пользователя для ребенка
-            val authResult = FirebaseAuth.getInstance().signInAnonymously().await()
-            val childId = authResult.user?.uid // Получаем ID анонимного ребенка
+            // 1. Регистрируем пользователя для ребенка с почтой и паролем
+            val authResult = FirebaseAuth.getInstance()
+                .createUserWithEmailAndPassword(email, password)
+                .await()
+            val childId = authResult.user?.uid // Получаем ID ребенка
 
             if (childId == null) {
-                Log.e("UserRepository", "Failed to create anonymous user for child.")
+                Log.e("UserRepository", "Failed to create user for child.")
                 return false
             }
 
-            // 2. Создаем запись для ребенка в Firestore
+            // 2. Получаем данные родителя
+            val parentDocRef = firestore.collection("users").document(parentId)
+            val parentDocument = parentDocRef.get().await()
+
+            if (!parentDocument.exists()) {
+                Log.e("UserRepository", "Parent document not found.")
+                throw Exception("Parent document not found.")
+            }
+
+            // Извлекаем familyId родителя
+            val familyId = parentDocument.getString("familyId")
+            if (familyId.isNullOrEmpty()) {
+                Log.e("UserRepository", "Parent does not have a familyId.")
+                throw Exception("Parent does not have a familyId.")
+            }
+
+            // 3. Создаем запись для ребенка в Firestore
             val childData = hashMapOf(
                 "name" to child.name,
                 "role" to "Child", // Роль фиксируем как "Child"
-                "parentId" to parentId  // Добавляем родительский ID в ребенка
+                "familyId" to familyId, // Присваиваем familyId родителя
+                "parentId" to parentId // Добавляем родительский ID в ребенка
             )
 
             // Сохраняем ребенка в Firestore
             firestore.collection("users").document(childId).set(childData).await()
             Log.d("UserRepository", "Child account created with ID: $childId")
 
-            // 3. Получаем ссылку на родителя
-            val parentDocRef = firestore.collection("users").document(parentId)
-
-            // Проверяем, существует ли родительский документ
-            val parentDocument = parentDocRef.get().await()
-
-            if (parentDocument.exists()) {
-                // 4. Если родитель существует, проверяем поле childrenIds
-                val childrenIds = parentDocument.get("childrenIds") as? MutableList<String> ?: mutableListOf()
-
-                // Добавляем новый ID ребенка в список
-                childrenIds.add(childId)
-
-                // Обновляем родительский документ с новым списком childrenIds
-                parentDocRef.update("childrenIds", childrenIds).await()
-                Log.d("UserRepository", "Parent account updated with new child ID")
-
-            } else {
-                // Если родитель не найден, выбрасываем исключение или логируем ошибку
-                Log.e("UserRepository", "Parent document not found.")
-                throw Exception("Parent document not found.")
-            }
+            // 4. Обновляем список детей у родителя
+            val childrenIds = parentDocument.get("childrenIds") as? MutableList<String> ?: mutableListOf()
+            childrenIds.add(childId)
+            parentDocRef.update("childrenIds", childrenIds).await()
+            Log.d("UserRepository", "Parent account updated with new child ID")
 
             true
 
@@ -86,70 +94,38 @@ class UserRepositoryImpl(
     }
 
 
-    // Получение детей для родителя по его parentId
-    override suspend fun getChildrenForParent(parentId: String): List<User> {
+
+    override suspend fun getFamilyMembers(familyId: String, currentUserId: String): List<User> {
         return try {
-            // Логируем получение ссылки на родителя
-            Log.d("UserRepository", "Fetching parent with ID: $parentId")
+            Log.d("UserRepository", "Fetching family members for familyId: $familyId, excluding userId: $currentUserId")
 
-            // Получаем ссылку на родителя
-            val parentDocRef = firestore.collection("users").document(parentId)
+            // Получаем всех пользователей с указанным familyId
+            val querySnapshot = firestore.collection("users")
+                .whereEqualTo("familyId", familyId)
+                .get()
+                .await()
 
-            // Логируем запрос данных родителя
-            Log.d("UserRepository", "Requesting parent data from Firestore")
+            // Фильтруем, чтобы исключить текущего пользователя
+            val familyMembers = querySnapshot.documents.mapNotNull { document ->
+                if (document.id != currentUserId) {
+                    // Логируем данные каждого члена семьи
+                    Log.d("UserRepository", "Found family member: ${document.getString("name")}")
 
-            // Получаем данные родителя
-            val parentDocument = parentDocRef.get().await()
-
-            if (parentDocument.exists()) {
-                // Логируем, что родитель найден
-                Log.d("UserRepository", "Parent document found")
-
-                // Извлекаем список childrenIds
-                val childrenIds = parentDocument.get("childrenIds") as? List<String> ?: emptyList()
-
-                // Логируем количество детей, которые мы собираемся получить
-                Log.d("UserRepository", "Found ${childrenIds.size} children IDs")
-
-                // Получаем данные для каждого ребенка по его ID
-                val children = mutableListOf<User>()
-                for (childId in childrenIds) {
-                    // Логируем получение данных для каждого ребенка
-                    Log.d("UserRepository", "Fetching data for child with ID: $childId")
-
-                    val childDocRef = firestore.collection("users").document(childId)
-                    val childDocument = childDocRef.get().await()
-
-                    if (childDocument.exists()) {
-                        // Логируем данные ребенка
-                        val childName = childDocument.getString("name") ?: "Unknown"
-                        val childRole = childDocument.getString("role") ?: "Unknown"
-                        Log.d("UserRepository", "Found child: Name = $childName, Role = $childRole")
-
-                        // Добавляем данные ребенка в список
-                        val child = User(
-                            id = childId,
-                            name = childName,
-                            role = childRole
-                        )
-                        children.add(child)
-                    } else {
-                        // Логируем ошибку, если данные ребенка не найдены
-                        Log.e("UserRepository", "Child document with ID $childId not found")
-                    }
+                    User(
+                        id = document.id,
+                        name = document.getString("name") ?: "Unknown",
+                        role = document.getString("role") ?: "Unknown",
+                        familyId = document.getString("familyId")
+                    )
+                } else {
+                    null
                 }
-                // Логируем финальный список детей
-                Log.d("UserRepository", "Returning ${children.size} children")
-                children
-            } else {
-                // Логируем ошибку, если родитель не найден
-                Log.e("UserRepository", "Parent document with ID $parentId not found")
-                emptyList()
             }
 
+            Log.d("UserRepository", "Returning ${familyMembers.size} family members")
+            familyMembers
         } catch (e: Exception) {
-            // Логируем ошибку, если что-то пошло не так
-            Log.e("UserRepository", "Error fetching children: ${e.message}")
+            Log.e("UserRepository", "Error fetching family members: ${e.message}")
             e.printStackTrace()
             emptyList()
         }

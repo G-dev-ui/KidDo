@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
 
@@ -32,16 +33,24 @@ class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
                 // Регистрация в Firebase Authentication
                 val result = authUseCase.registerUser(email, password)
 
-                // Добавляем данные в Firestore
+                // Получаем ID текущего пользователя
                 val userId = auth.currentUser?.uid
                 if (userId != null) {
+                    // Генерируем семейный ID для нового пользователя
+                    val familyId = if (role == "Родитель") {
+                        UUID.randomUUID().toString() // Генерируем новый familyId для родителя
+                    } else {
+                        "" // У ребенка familyId будет задаваться позже
+                    }
+
                     // Данные пользователя
                     val userData = mapOf(
                         "name" to name,
                         "email" to email,
                         "dateOfBirth" to dateOfBirth,
-                        "role" to "Родитель",  // Устанавливаем роль как "Родитель"
-                        "childrenIds" to mutableListOf<String>()  // Инициализируем пустой список детей
+                        "role" to role,
+                        "familyId" to familyId, // Добавляем семейный ID
+                        "childrenIds" to if (role == "Родитель") mutableListOf<String>() else null
                     )
 
                     // Сохраняем данные в Firestore

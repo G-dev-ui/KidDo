@@ -10,7 +10,7 @@ data class Account(val name: String, val role: String,val id: String)
 
 class AccountAdapter(
     private val accountList: MutableList<Account>,
-    private val onItemClick: (String) -> Unit // Передаем ID ребенка
+    private val onItemClick: (Account) -> Unit // Передаем ID ребенка
 ) : RecyclerView.Adapter<ItemAccountViewHolder>() {
 
     // Создание ViewHolder из XML
@@ -28,7 +28,7 @@ class AccountAdapter(
         holder.itemView.setOnClickListener {
             Log.d("AccountAdapter", "Item clicked: ${account.name}, ID: ${account.id}")
             // Передаем ID аккаунта, на который кликнули
-            onItemClick(account.id) // Здесь передаем ID
+            onItemClick(account) // Здесь передаем ID
         }
     }
 
@@ -42,16 +42,15 @@ class AccountAdapter(
     }
 
     // Удалить элемент из списка
-    fun removeAccount(position: Int) {
-        if (position in accountList.indices) {
-            accountList.removeAt(position)
-            notifyItemRemoved(position)
-        }
+    fun clearAccounts() {
+        accountList.clear()
+        notifyDataSetChanged()
     }
 
     fun addAccounts(accounts: List<Account>) {
-        accountList.clear() // Очищаем старый список (если нужно)
+        Log.d("AccountAdapter", "Updating accounts: $accounts")
+        accountList.clear()
         accountList.addAll(accounts)
-        notifyDataSetChanged() // Обновляем адаптер
+        notifyDataSetChanged()
     }
 }

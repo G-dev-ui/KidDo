@@ -1,14 +1,16 @@
 package com.example.kiddo.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.kiddo.R
 import com.example.kiddo.databinding.FragmentAccountSwitchingBinding
 import com.example.kiddo.domain.model.ChildAccount
 import com.example.kiddo.presentation.AccountSwitchingViewModel
@@ -51,15 +53,13 @@ class AccountSwitchingFragment : Fragment() {
             }
         }
 
-        // Наблюдаем за детьми
-        viewModel.children.observe(viewLifecycleOwner) { children ->
-            if (children.isNotEmpty()) {
-                // Обновляем список через адаптер после получения данных о детях
-                accountAdapter.addAccounts(children.map {
-                    Account(name = it.name, role = it.role, id = it.id) // Убедитесь, что id передается
+        viewModel.familyMembers.observe(viewLifecycleOwner) { familyMembers ->
+            if (familyMembers.isNotEmpty()) {
+                accountAdapter.addAccounts(familyMembers.map {
+                    Account(name = it.name, role = it.role, id = it.id)
                 })
             } else {
-                Toast.makeText(context, "У вас нет детей.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "У вас нет членов семьи.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -70,14 +70,12 @@ class AccountSwitchingFragment : Fragment() {
 
         // Запрос данных
         viewModel.fetchUserData()
+        viewModel.fetchFamilyMembers()
     }
 
     private fun setupRecyclerView() {
-        accountAdapter = AccountAdapter(accountList) { accountId ->
-            Log.d("AccountSwitchingFragment", "Account clicked with ID: $accountId")
-
-            // Переключаем аккаунт
-            viewModel.switchToChildAccount(accountId)
+        accountAdapter = AccountAdapter(accountList) { account ->
+            showLoginDialog(account) // Передаем объект типа Account
         }
         binding.recyclerView.adapter = accountAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -100,20 +98,29 @@ class AccountSwitchingFragment : Fragment() {
         binding.btnCreateAccount.setOnClickListener {
             val name = binding.etName.text.toString()
             val dateOfBirth = binding.etDateOfBirth.text.toString()
+            val email = binding.etEmail.text.toString() // Получаем email
+            val password = binding.etPassword.text.toString() // Получаем password
 
-            if (name.isBlank() || dateOfBirth.isBlank()) {
+            if (name.isBlank() || dateOfBirth.isBlank() || email.isBlank() || password.isBlank()) {
                 Toast.makeText(context, "Заполните все поля!", Toast.LENGTH_SHORT).show()
             } else {
                 val parentId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_parent_id"
 
                 val newChildAccount = ChildAccount(name = name, dateOfBirth = dateOfBirth)
 
-                viewModel.createChildAccount(parentId = parentId, child = newChildAccount) {
+                viewModel.createChildAccount(
+                    parentId = parentId,
+                    child = newChildAccount,
+                    email = email, // Передаем email
+                    password = password // Передаем password
+                ) {
                     val newAccount = Account(name = newChildAccount.name, role = "Ребёнок", id = "someGeneratedId")
                     accountAdapter.addAccount(newAccount)
 
                     binding.etName.text.clear()
                     binding.etDateOfBirth.text.clear()
+                    binding.etEmail.text.clear() // Очищаем поле email
+                    binding.etPassword.text.clear() // Очищаем поле password
 
                     bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
@@ -121,6 +128,41 @@ class AccountSwitchingFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun showLoginDialog(account: Account) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_login, null)
+        val etEmail = dialogView.findViewById<EditText>(R.id.et_email)
+        val etPassword = dialogView.findViewById<EditText>(R.id.et_password)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Вход в аккаунт: ${account.name}")
+            .setView(dialogView)
+            .setPositiveButton("Войти") { _, _ ->
+                val email = etEmail.text.toString()
+                val password = etPassword.text.toString()
+
+                if (email.isNotBlank() && password.isNotBlank()) {
+                    viewModel.switchToChildAccount(
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            Toast.makeText(context, "Успешный вход в аккаунт ${account.name}", Toast.LENGTH_SHORT).show()
+                            binding.tvName.text = account.name
+                            binding.tvRole.text = account.role
+                        },
+                        onError = { errorMessage ->
+                            Toast.makeText(context, "Ошибка: $errorMessage", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                } else {
+                    Toast.makeText(context, "Введите email и пароль!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .create()
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

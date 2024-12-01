@@ -5,6 +5,6 @@ import com.example.kiddo.domain.model.User
 
 interface UserRepository {
     suspend fun getUserData(userId: String): User?
-    suspend fun createChildAccount(parentId: String, child: User): Boolean
-    suspend fun getChildrenForParent(parentId: String): List<User>
+    suspend fun createChildAccount(parentId: String, child: User, email: String, password: String): Boolean
+    suspend fun getFamilyMembers(familyId: String, currentUserId: String): List<User> // Новый метод
 }

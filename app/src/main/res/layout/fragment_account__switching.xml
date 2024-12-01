@@ -82,6 +82,8 @@
             app:layout_constraintVertical_bias="0.0"
             tools:listitem="@layout/item_account" />
 
+
+
         <!-- Кнопка для добавления нового аккаунта -->
         <Button
             android:id="@+id/btn_add_account"
@@ -105,6 +107,7 @@
         android:padding="16dp"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
+
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <EditText
@@ -123,6 +126,28 @@
             android:layout_height="wrap_content"
             android:hint="Введите дату рождения"
             android:inputType="date"
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Поле для ввода почты -->
+        <EditText
+            android:id="@+id/et_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите почту"
+            android:inputType="textEmailAddress"
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Поле для ввода пароля -->
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите пароль"
+            android:inputType="textPassword"
             android:padding="12dp"
             android:background="@android:color/white"
             android:layout_marginBottom="16dp" />

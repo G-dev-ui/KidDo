@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kiddo.domain.CreateChildAccountUseCase
-import com.example.kiddo.domain.GetChildrenForParentUseCase
+import com.example.kiddo.domain.GetFamilyMembersUseCase
 import com.example.kiddo.domain.model.User
 import com.example.kiddo.domain.GetUserUseCase
 import com.example.kiddo.domain.api.UserRepository
@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 
 class AccountSwitchingViewModel(
     private val userRepository: UserRepository,
-    private val getChildrenForParentUseCase: GetChildrenForParentUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val auth: FirebaseAuth,
+    private val getFamilyMembersUseCase: GetFamilyMembersUseCase,
     private val createChildAccountUseCase: CreateChildAccountUseCase
 ) : ViewModel() {
 
@@ -35,6 +35,10 @@ class AccountSwitchingViewModel(
     private val _currentAccount = MutableLiveData<User?>()  // Изменили на User?
     val currentAccount: LiveData<User?> = _currentAccount  // Соответственно и здесь
 
+
+    private val _familyMembers = MutableLiveData<List<User>>()
+    val familyMembers: LiveData<List<User>> get() = _familyMembers
+
     fun fetchUserData() {
         val currentUserId = auth.currentUser?.uid
         if (currentUserId == null) {
@@ -44,21 +48,27 @@ class AccountSwitchingViewModel(
 
         viewModelScope.launch {
             try {
-                // Получаем данные пользователя
+                // Получаем данные текущего пользователя
                 val userData = getUserUseCase(currentUserId)
                 _user.value = userData
 
-                // Получаем детей пользователя
-                val childrenData = getChildrenForParentUseCase(currentUserId) // Получаем детей
-                _children.value = childrenData // Обновляем LiveData с детьми
+                // Проверяем наличие familyId
+                val familyId = userData?.familyId
+                if (familyId == null) {
+                    _error.value = "Ошибка: familyId не найден"
+                    return@launch
+                }
+
+                // Получаем членов семьи и обновляем LiveData
+                val familyMembers = getFamilyMembersUseCase(familyId, currentUserId)
+                _familyMembers.value = familyMembers
             } catch (e: Exception) {
                 _error.value = "Ошибка загрузки данных: ${e.message}"
             }
         }
     }
 
-    // Метод для получения детей родителя
-    fun fetchChildrenForParent() {
+    fun fetchFamilyMembers() {
         val currentUserId = auth.currentUser?.uid
         if (currentUserId == null) {
             _error.value = "Ошибка: пользователь не авторизован"
@@ -67,21 +77,34 @@ class AccountSwitchingViewModel(
 
         viewModelScope.launch {
             try {
-                val childrenList = getChildrenForParentUseCase(currentUserId)
-                _children.value = childrenList
+                val currentUserData = getUserUseCase(currentUserId)
+                if (currentUserData?.familyId == null) {
+                    _error.value = "Ошибка: familyId не найден"
+                    return@launch
+                }
+
+                val members = getFamilyMembersUseCase(currentUserData.familyId, currentUserId)
+                _familyMembers.value = members
             } catch (e: Exception) {
-                _error.value = "Ошибка получения списка детей: ${e.message}"
+                _error.value = "Ошибка получения членов семьи: ${e.message}"
             }
         }
     }
 
-    fun createChildAccount(parentId: String, child: ChildAccount, onSuccess: () -> Unit) {
+    fun createChildAccount(
+        parentId: String,
+        child: ChildAccount,
+        email: String,
+        password: String,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             try {
                 // Логирование вызова метода
                 Log.d("CreateChildAccount", "Attempting to create child account for parent: $parentId")
 
-                val result = createChildAccountUseCase.invoke(parentId, child)
+                // Передаем email и password
+                val result = createChildAccountUseCase.invoke(parentId, child, email, password)
 
                 // Логирование результата
                 Log.d("CreateChildAccount", "Child account creation result: $result")
@@ -101,20 +124,33 @@ class AccountSwitchingViewModel(
         }
     }
 
-    fun switchToChildAccount(accountId: String) {
-        // Получаем данные для нового аккаунта (можно, например, делать запрос в базу данных)
+    fun switchToChildAccount(email: String, password: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                // Проверяем, что метод userRepository.getUserData(accountId) возвращает данные
-                val userData = userRepository.getUserData(accountId)
-                if (userData != null) {
-                    // Обновляем данные пользователя в LiveData
-                    _user.value = userData
-                } else {
-                    _error.value = "Пользователь с ID $accountId не найден"
-                }
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val userId = auth.currentUser?.uid
+                            if (userId != null) {
+                                viewModelScope.launch {
+                                    val userData = userRepository.getUserData(userId)
+                                    if (userData != null) {
+                                        _user.value = userData
+                                        fetchFamilyMembers()
+                                        onSuccess()
+                                    } else {
+                                        onError("Не удалось получить данные пользователя.")
+                                    }
+                                }
+                            } else {
+                                onError("Не удалось получить ID пользователя.")
+                            }
+                        } else {
+                            onError(task.exception?.message ?: "Ошибка входа.")
+                        }
+                    }
             } catch (e: Exception) {
-                _error.value = "Ошибка при переключении аккаунта: ${e.message}"
+                onError("Ошибка при входе: ${e.message}")
             }
         }
     }
