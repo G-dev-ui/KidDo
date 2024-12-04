@@ -25,8 +25,11 @@ class HomeFragment : Fragment() {
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+
+        (activity as MainActivity).showBottomNavigationView()
+
         binding.btnAcc.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_account_SwitchingFragment)
+            findNavController().navigate(R.id.action_homeFragment_to_accountSwitchingFragment)
         }
 
         // Обработчик нажатия на кнопку "Выход"

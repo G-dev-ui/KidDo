@@ -3,13 +3,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/registrationFragment">
+    app:startDestination="@id/homeFragment">
 
+    <!-- Home Fragment -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.kiddo.ui.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_accountSwitchingFragment"
+            app:destination="@id/account_SwitchingFragment" />
+        <!-- Actions for BottomNavigationView screens -->
+        <action
+            android:id="@+id/action_homeFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <!-- Registration Fragment -->
     <fragment
         android:id="@+id/registrationFragment"
         android:name="com.example.kiddo.ui.RegistrationFragment"
         android:label="fragment_registration"
-        tools:layout="@layout/fragment_registration" >
+        tools:layout="@layout/fragment_registration">
         <action
             android:id="@+id/action_registrationFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -17,23 +42,13 @@
             android:id="@+id/action_registrationFragment_to_creatingAccFragment"
             app:destination="@id/creatingAccFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.kiddo.ui.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
-        <action
-            android:id="@+id/action_homeFragment_to_registrationFragment"
-            app:destination="@id/registrationFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_account_SwitchingFragment"
-            app:destination="@id/account_SwitchingFragment" />
-    </fragment>
+
+    <!-- Creating Account Fragment -->
     <fragment
         android:id="@+id/creatingAccFragment"
         android:name="com.example.kiddo.ui.CreatingAccFragment"
         android:label="fragment_creating_acc"
-        tools:layout="@layout/fragment_creating_acc" >
+        tools:layout="@layout/fragment_creating_acc">
         <action
             android:id="@+id/action_creatingAccFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -41,9 +56,33 @@
             android:id="@+id/action_creatingAccFragment_to_registrationFragment"
             app:destination="@id/registrationFragment" />
     </fragment>
+
+    <!-- Account Switching Fragment -->
     <fragment
         android:id="@+id/account_SwitchingFragment"
         android:name="com.example.kiddo.ui.AccountSwitchingFragment"
-        android:label="fragment_account__switching"
-        tools:layout="@layout/fragment_account__switching" />
+        android:label="fragment_account_switching"
+        tools:layout="@layout/fragment_account_switching" />
+
+    <!-- Dashboard Fragment -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.kiddo.ui.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.kiddo.ui.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.kiddo.ui.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>

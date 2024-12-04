@@ -32,6 +32,8 @@ class CreatingAccFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        (activity as MainActivity).hideBottomNavigationView()
+
         binding.backBtn.setOnClickListener {
             findNavController().navigate(R.id.action_creatingAccFragment_to_registrationFragment)
         }

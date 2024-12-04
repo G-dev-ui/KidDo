@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="24dp"
+    android:viewportHeight="24"
+    android:viewportWidth="24"
+    android:width="24dp">
+
+    <!-- Outer Circle -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M12,2a10,10 0 1,0 10,10a10,10 0 0,0 -10,-10z"/>
+
+    <!-- Centered Star -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,7l1.76,3.58l3.94,0.57l-2.85,2.78l0.67,3.91l-3.52,-1.85l-3.52,1.85l0.67,-3.91l-2.85,-2.78l3.94,-0.57L12,7z"/>
+
+</vector>
+
+

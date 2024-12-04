@@ -1,4 +1,4 @@
-package com.example.kiddo.ui
+package com.example.kiddo.ui.adapter
 
 import android.view.View
 import android.widget.ImageView

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    tools:context=".ui.DashboardFragment">
+
+    <!-- ConstraintLayout для основного контента -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Заголовок -->
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Мои дела"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:layout_margin="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Список дел -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tasksRecyclerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintTop_toBottomOf="@id/titleTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/addTaskButton"
+            tools:listitem="@layout/item_task" />
+
+        <!-- Кнопка добавления дела -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addTaskButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="125dp"
+            android:layout_marginEnd="32dp"
+            android:contentDescription="Добавить дело"
+            android:src="@drawable/ic_add"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- BottomSheet для создания дела -->
+    <LinearLayout
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:behavior_hideable="true"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        <!-- Содержимое BottomSheet -->
+
+        <!-- Поле ввода названия -->
+        <EditText
+            android:id="@+id/taskNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Название дела"
+            android:inputType="text" />
+
+        <!-- Регулировка награды -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Награда за выполнение"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <ImageButton
+                android:id="@+id/rewardMinusButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_down"
+                android:contentDescription="Decrease Reward"
+                android:background="@null" />
+
+            <TextView
+                android:id="@+id/rewardTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="16dp"
+                android:text="0"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+            <ImageButton
+                android:id="@+id/rewardPlusButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_up"
+                android:contentDescription="Increase Reward"
+                android:background="@null" />
+
+            <ImageView
+                android:id="@+id/starCoinIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/star_coin"
+                android:contentDescription="Star Coin Icon"
+                android:layout_marginStart="16dp" />
+
+        </LinearLayout>
+
+        <!-- Горизонтальный список -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Для кого:"
+            android:layout_marginTop="16dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/categoryRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            tools:listitem="@layout/item_category" />
+
+        <!-- Кнопка "Создать" -->
+        <Button
+            android:id="@+id/createTaskButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Создать"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -44,6 +44,13 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
 
+    implementation (libs.androidx.navigation.fragment.ktx.v271)
+    implementation (libs.androidx.navigation.ui.ktx.v271)
+    implementation (libs.material.v190)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+
+
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     // Koin для Android

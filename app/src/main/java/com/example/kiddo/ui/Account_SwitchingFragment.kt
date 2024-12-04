@@ -14,6 +14,8 @@ import com.example.kiddo.R
 import com.example.kiddo.databinding.FragmentAccountSwitchingBinding
 import com.example.kiddo.domain.model.ChildAccount
 import com.example.kiddo.presentation.AccountSwitchingViewModel
+import com.example.kiddo.ui.adapter.Account
+import com.example.kiddo.ui.adapter.AccountAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -41,6 +43,8 @@ class AccountSwitchingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (activity as MainActivity).hideBottomNavigationView()
 
         setupRecyclerView()
         initializeBottomSheet()

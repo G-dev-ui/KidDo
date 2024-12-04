@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="32dp"
         android:src="@drawable/baseline_exit_to_app_24"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,9 +28,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/baseline_account_circle_24"
-
-         android:layout_margin="32dp"
+        android:layout_margin="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Star Coin Display -->
+    <LinearLayout
+        android:id="@+id/star_coin_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/out_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/star_coin_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/star_coin"
+            android:contentDescription="Star Coin" />
+
+        <TextView
+            android:id="@+id/star_coin_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:layout_marginStart="8dp"
+            android:gravity="center_vertical" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
