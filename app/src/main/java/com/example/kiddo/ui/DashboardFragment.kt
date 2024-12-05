@@ -7,14 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kiddo.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.kiddo.databinding.FragmentDashboardBinding
+import com.example.kiddo.domain.model.Task
 import com.example.kiddo.presentation.FamilyViewModel
+import com.example.kiddo.presentation.TaskViewModel
 import com.example.kiddo.ui.adapter.CategoryAdapter
+import com.example.kiddo.ui.adapter.TaskAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import java.util.UUID
 
 
 class DashboardFragment : Fragment() {
@@ -26,16 +31,24 @@ class DashboardFragment : Fragment() {
     private lateinit var bottomNavigationView: BottomNavigationView
 
     private val familyViewModel: FamilyViewModel by viewModel()
+    private val taskViewModel: TaskViewModel by viewModel()
+
+    private lateinit var taskAdapter: TaskAdapter // Адаптер для задач
 
     private var rewardCount = 0 // Переменная для хранения текущего счета награды
 
     private var selectedMemberId: String? = null // Переменная для хранения выбранного члена семьи
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
+
+        binding.createTaskButton.setOnClickListener {
+            createTask()
+        }
 
         // Настройка BottomSheet
         bottomNavigationView = requireActivity().findViewById(R.id.bottom_navigation)
@@ -64,18 +77,76 @@ class DashboardFragment : Fragment() {
         // Наблюдаем за данными членов семьи
         observeFamilyMembers()
 
+        // Наблюдаем за задачами
+        observeTasks()
+
         return binding.root
     }
 
+
+    private fun createTask() {
+        val taskName = binding.taskNameEditText.text.toString().trim()
+        if (taskName.isEmpty()) {
+            Toast.makeText(requireContext(), "Введите название задачи", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedMemberId == null) {
+            Toast.makeText(requireContext(), "Выберите члена семьи", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Найти имя члена семьи по ID
+        val assignedMember = familyViewModel.familyMembers.value?.find { it.id == selectedMemberId }
+        val assignedToName = assignedMember?.name ?: "Неизвестный"
+
+        // Создаем объект задачи
+        val task = Task(
+            id = UUID.randomUUID().toString(), // Уникальный идентификатор
+            title = taskName,
+            assignedToName = assignedToName,
+            reward = rewardCount
+        )
+
+        // Сохраните задачу в ViewModel или передайте в базу данных
+        taskViewModel.createTask(task)
+
+        // Сброс данных после создания задачи
+        resetTaskForm()
+
+        // Закрываем BottomSheet
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    private fun resetTaskForm() {
+        binding.taskNameEditText.text.clear()
+        rewardCount = 0
+        updateRewardText()
+        selectedMemberId = null
+        binding.categoryRecyclerView.adapter?.notifyDataSetChanged()
+    }
+
     private fun setupRecyclerView() {
-        binding.categoryRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.categoryRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        // Настроим RecyclerView для задач
+        binding.tasksRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        taskAdapter = TaskAdapter() // Инициализируем адаптер для задач
+        binding.tasksRecyclerView.adapter = taskAdapter
     }
 
     private fun observeFamilyMembers() {
         // Наблюдаем за изменением данных членов семьи
         familyViewModel.familyMembers.observe(viewLifecycleOwner) { members ->
-            Log.d("DashboardFragment", "Family Members: $members") // Логирование для проверки данных
-            val adapter = CategoryAdapter(members, ::onFamilyMemberSelected) // Передаем callback для обработки клика
+            Log.d(
+                "DashboardFragment",
+                "Family Members: $members"
+            ) // Логирование для проверки данных
+            val adapter = CategoryAdapter(
+                members,
+                ::onFamilyMemberSelected
+            ) // Передаем callback для обработки клика
             binding.categoryRecyclerView.adapter = adapter
         }
 
@@ -111,6 +182,27 @@ class DashboardFragment : Fragment() {
     private fun onFamilyMemberSelected(memberId: String) {
         selectedMemberId = memberId // Сохраняем выбранного члена семьи
         Log.d("DashboardFragment", "Selected member: $selectedMemberId")
+    }
+
+    private fun observeTasks() {
+        // Подгрузить задачи сразу при старте
+        taskViewModel.loadTasks()
+
+        // Наблюдаем за задачами
+        taskViewModel.tasks.observe(viewLifecycleOwner) { tasks ->
+            tasks?.let {
+                taskAdapter.updateTasks(it) // Обновляем список задач в адаптере
+            }
+        }
+
+        taskViewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                // Выводим ошибку в логи
+                Log.e("DashboardFragment", "Ошибка при обработке задач: $it")
+                // Отображаем ошибку в виде Toast
+                Toast.makeText(requireContext(), "Ошибка: $it", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onDestroyView() {

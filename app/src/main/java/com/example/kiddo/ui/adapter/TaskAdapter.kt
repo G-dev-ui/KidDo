@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kiddo.R
 import com.example.kiddo.domain.model.Task
 
-class TaskAdapter(private val tasks: List<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+
+    private var tasks: List<Task> = emptyList()
 
     // ViewHolder для элемента задачи
     class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,4 +34,9 @@ class TaskAdapter(private val tasks: List<Task>) : RecyclerView.Adapter<TaskAdap
     }
 
     override fun getItemCount(): Int = tasks.size
+
+    fun updateTasks(newTasks: List<Task>) {
+        tasks = newTasks
+        notifyDataSetChanged() // Уведомляем RecyclerView об изменениях
+    }
 }
