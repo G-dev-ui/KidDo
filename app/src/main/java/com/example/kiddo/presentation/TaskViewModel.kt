@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kiddo.domain.CompleteTaskUseCase
 import com.example.kiddo.domain.CreateTaskUseCase
 import com.example.kiddo.domain.GetTasksUseCase
 import com.example.kiddo.domain.model.Task
@@ -12,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(
     private val createTaskUseCase: CreateTaskUseCase,
-    private val getTasksUseCase: GetTasksUseCase
+    private val getTasksUseCase: GetTasksUseCase,
+    private val completeTaskUseCase: CompleteTaskUseCase // Новый UseCase
 ) : ViewModel() {
 
     private val _tasks = MutableLiveData<List<Task>?>()
@@ -51,4 +53,21 @@ class TaskViewModel(
             }
         }
     }
+
+    fun completeTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                val result = completeTaskUseCase(task)
+                if (result.isSuccess) {
+                    loadTasks() // Обновляем список задач после завершения
+                } else {
+                    _error.value = result.exceptionOrNull()?.localizedMessage
+                }
+            } catch (e: Exception) {
+                _error.value = "Ошибка при завершении задачи: ${e.localizedMessage}"
+                Log.e("TaskViewModel", "Error while completing task", e)
+            }
+        }
+    }
+
 }

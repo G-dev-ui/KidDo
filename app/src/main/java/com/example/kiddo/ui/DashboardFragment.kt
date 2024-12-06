@@ -104,11 +104,11 @@ class DashboardFragment : Fragment() {
         val task = Task(
             id = UUID.randomUUID().toString(), // Уникальный идентификатор
             title = taskName,
+            assignedToId = selectedMemberId, // Устанавливаем ID назначенного члена семьи
             assignedToName = assignedToName,
             reward = rewardCount
         )
 
-        // Сохраните задачу в ViewModel или передайте в базу данных
         taskViewModel.createTask(task)
 
         // Сброс данных после создания задачи
@@ -132,7 +132,9 @@ class DashboardFragment : Fragment() {
 
         // Настроим RecyclerView для задач
         binding.tasksRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        taskAdapter = TaskAdapter() // Инициализируем адаптер для задач
+        taskAdapter = TaskAdapter { task ->
+            completeTask(task) // Вызываем метод завершения задачи
+        } // Инициализируем адаптер для задач
         binding.tasksRecyclerView.adapter = taskAdapter
     }
 
@@ -203,6 +205,9 @@ class DashboardFragment : Fragment() {
                 Toast.makeText(requireContext(), "Ошибка: $it", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    private fun completeTask(task: Task) {
+        taskViewModel.completeTask(task) // Передаем задачу в ViewModel
     }
 
     override fun onDestroyView() {

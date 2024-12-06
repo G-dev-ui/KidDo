@@ -70,7 +70,8 @@ class UserRepositoryImpl(
                 "name" to child.name,
                 "role" to "Child", // Роль фиксируем как "Child"
                 "familyId" to familyId, // Присваиваем familyId родителя
-                "parentId" to parentId // Добавляем родительский ID в ребенка
+                "parentId" to parentId, // Добавляем родительский ID в ребенка
+                "starCoins" to 0 // Добавляем поле для наград, начальное значение 0
             )
 
             // Сохраняем ребенка в Firestore

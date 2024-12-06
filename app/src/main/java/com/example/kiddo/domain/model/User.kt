@@ -5,5 +5,6 @@ data class User(
     val name: String,
     val role: String,
     val familyId: String?,
-    val parentId: String = ""
+    val parentId: String = "",
+    val starCoins: Int = 0 // Поле для хранения количества наград
 )

@@ -2,6 +2,7 @@ package com.example.kiddo.di
 
 
 import com.example.kiddo.domain.AuthUseCase
+import com.example.kiddo.domain.CompleteTaskUseCase
 import com.example.kiddo.domain.CreateChildAccountUseCase
 import com.example.kiddo.domain.CreateChildAccountUseCaseImpl
 import com.example.kiddo.domain.CreateTaskUseCase
@@ -20,5 +21,5 @@ val interactorModule = module {
     factory { GetFamilyUseCase(get()) }
     factory { GetTasksUseCase(get()) }
     factory { CreateTaskUseCase(get()) }
-
+    factory { CompleteTaskUseCase(get()) }
 }

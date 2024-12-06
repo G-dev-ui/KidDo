@@ -50,7 +50,8 @@ class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
                         "dateOfBirth" to dateOfBirth,
                         "role" to role,
                         "familyId" to familyId, // Добавляем семейный ID
-                        "childrenIds" to if (role == "Родитель") mutableListOf<String>() else null
+                        "childrenIds" to if (role == "Родитель") mutableListOf<String>() else null,
+                        "starCoins" to 0 // Добавляем поле для наград, начальное значение 0
                     )
 
                     // Сохраняем данные в Firestore
