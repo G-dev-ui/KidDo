@@ -12,6 +12,6 @@ import org.koin.dsl.module
 val viewModelModule = module {
     viewModel { AuthViewModel(get()) }
     viewModel { AccountSwitchingViewModel(get(), get(), get(),get(), get()) }
-    viewModel { FamilyViewModel(get()) }
+    viewModel { FamilyViewModel(get(), get()) }
     viewModel { TaskViewModel(get(), get(), get()) }
 }

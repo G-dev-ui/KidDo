@@ -3,6 +3,7 @@ package com.example.kiddo.data
 import android.util.Log
 import com.example.kiddo.domain.api.TaskRepository
 import com.example.kiddo.domain.model.Task
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -41,7 +42,7 @@ class TaskRepositoryImpl(
 
     override suspend fun completeTask(task: Task): Result<Unit> {
         return try {
-            // Ищем документ по полю id, которое находится в данных документа
+            // Ищем документ задачи по полю id
             val taskQuery = firebaseFirestore.collection("tasks")
                 .whereEqualTo("id", task.id) // Ищем задачу по значению поля id
 
@@ -62,12 +63,36 @@ class TaskRepositoryImpl(
             // Обновляем статус задачи
             taskRef.update("status", true).await()
 
+            // Проверяем, что assignedToId не равен null перед поиском пользователя
+            val assignedToId = task.assignedToId
+            if (assignedToId == null) {
+                Log.e("CompleteTask", "Assigned user ID is null.")
+                return Result.failure(Exception("Assigned user ID is null"))
+            }
+
+            // Получаем пользователя, который выполнил задачу по его ID
+            val userRef = firebaseFirestore.collection("users").document(assignedToId)
+
+            // Получаем документ пользователя
+            val userDocumentSnapshot = userRef.get().await()
+
+            if (!userDocumentSnapshot.exists()) {
+                Log.e("CompleteTask", "User not found with ID: $assignedToId")
+                return Result.failure(Exception("User not found"))
+            }
+
+            // Обновляем количество starCoins пользователя
+            userRef.update("starCoins", FieldValue.increment(task.reward.toLong())).await()
+
+            Log.d("CompleteTask", "Reward given to user: ${task.reward} starCoins")
+
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e("CompleteTask", "Error completing task: ${e.localizedMessage}", e)
             Result.failure(e)
         }
     }
+
 
 
 

@@ -49,7 +49,8 @@ dependencies {
     implementation (libs.material.v190)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.androidx.lifecycle.livedata.ktx)
-
+    implementation (libs.androidx.viewpager2)
+    implementation (libs.material.v150) // Для TabLayout
 
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies

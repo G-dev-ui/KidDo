@@ -44,7 +44,9 @@ class TaskViewModel(
             try {
                 val result = getTasksUseCase()
                 if (result.isSuccess) {
-                    _tasks.value = result.getOrNull()
+                    // Фильтруем задачи, чтобы исключить те, у которых статус true
+                    val filteredTasks = result.getOrNull()?.filter { it.status != true }
+                    _tasks.value = filteredTasks
                 } else {
                     _error.value = result.exceptionOrNull()?.localizedMessage
                 }
@@ -59,7 +61,8 @@ class TaskViewModel(
             try {
                 val result = completeTaskUseCase(task)
                 if (result.isSuccess) {
-                    loadTasks() // Обновляем список задач после завершения
+                    // Удаляем завершенную задачу из списка
+                    removeCompletedTask(task)
                 } else {
                     _error.value = result.exceptionOrNull()?.localizedMessage
                 }
@@ -68,6 +71,11 @@ class TaskViewModel(
                 Log.e("TaskViewModel", "Error while completing task", e)
             }
         }
+    }
+
+    private fun removeCompletedTask(task: Task) {
+        val updatedTasks = _tasks.value?.filter { it.id != task.id }
+        _tasks.value = updatedTasks
     }
 
 }

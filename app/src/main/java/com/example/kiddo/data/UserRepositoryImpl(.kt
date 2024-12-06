@@ -132,4 +132,35 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun getUserStarCoins(userId: String): Long {
+        return try {
+            // Получаем текущего авторизованного пользователя
+            val currentUser = FirebaseAuth.getInstance().currentUser
+
+            if (currentUser != null) {
+                // Если пользователь авторизован, получаем его UID
+                val userId = currentUser.uid
+
+                // Запрашиваем документ пользователя по его UID
+                val document = firestore.collection("users").document(userId).get().await()
+
+                if (document.exists()) {
+                    // Если документ существует, возвращаем значение starCoins
+                    document.getLong("starCoins") ?: 0L
+                } else {
+                    // Если документ не найден, возвращаем 0
+                    0L
+                }
+            } else {
+                // Если пользователь не авторизован, возвращаем 0
+                Log.e("UserRepository", "No user is currently logged in.")
+                0L
+            }
+        } catch (e: Exception) {
+            // Логируем ошибку и возвращаем 0
+            Log.e("UserRepository", "Error fetching starCoins: ${e.localizedMessage}")
+            0L
+        }
+    }
+
 }
