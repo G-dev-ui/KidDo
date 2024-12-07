@@ -80,6 +80,12 @@ class DashboardFragment : Fragment() {
         // Наблюдаем за задачами
         observeTasks()
 
+        // Настройка SwipeRefreshLayout
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            // Загружаем данные заново
+            taskViewModel.loadTasks()
+        }
+
         return binding.root
     }
 
@@ -186,6 +192,7 @@ class DashboardFragment : Fragment() {
         Log.d("DashboardFragment", "Selected member: $selectedMemberId")
     }
 
+
     private fun observeTasks() {
         // Подгрузить задачи сразу при старте
         taskViewModel.loadTasks()
@@ -194,15 +201,15 @@ class DashboardFragment : Fragment() {
         taskViewModel.tasks.observe(viewLifecycleOwner) { tasks ->
             tasks?.let {
                 taskAdapter.updateTasks(it) // Обновляем список задач в адаптере
+                binding.swipeRefreshLayout.isRefreshing = false // Останавливаем индикатор обновления
             }
         }
 
         taskViewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
-                // Выводим ошибку в логи
                 Log.e("DashboardFragment", "Ошибка при обработке задач: $it")
-                // Отображаем ошибку в виде Toast
                 Toast.makeText(requireContext(), "Ошибка: $it", Toast.LENGTH_SHORT).show()
+                binding.swipeRefreshLayout.isRefreshing = false // Останавливаем индикатор обновления
             }
         }
     }

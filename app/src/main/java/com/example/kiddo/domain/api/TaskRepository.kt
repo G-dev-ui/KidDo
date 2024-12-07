@@ -7,4 +7,5 @@ interface TaskRepository {
     suspend fun getTasks(): Result<List<Task>>
     suspend fun updateTask(task: Task): Result<Unit> // Новый метод
     suspend fun completeTask(task: Task): Result<Unit> // Новый метод
+    suspend fun revertTaskStatus(task: Task): Result<Unit>
 }

@@ -11,6 +11,7 @@ import com.example.kiddo.domain.GetFamilyUseCase
 import com.example.kiddo.domain.GetTasksUseCase
 import com.example.kiddo.domain.GetUserStarCoinsUseCase
 import com.example.kiddo.domain.GetUserUseCase
+import com.example.kiddo.domain.RevertTaskStatusUseCase
 import org.koin.dsl.module
 
 val interactorModule = module {
@@ -24,4 +25,5 @@ val interactorModule = module {
     factory { CreateTaskUseCase(get()) }
     factory { CompleteTaskUseCase(get()) }
     factory { GetUserStarCoinsUseCase(get()) }
+    factory { RevertTaskStatusUseCase(get()) }
 }

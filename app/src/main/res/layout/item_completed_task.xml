@@ -1,0 +1,82 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Название дела -->
+    <TextView
+        android:id="@+id/taskTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Название дела"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Дополнительная информация -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <!-- Имя пользователя -->
+        <TextView
+            android:id="@+id/taskAssignedToTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Выполнил: Имя"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <!-- Награда -->
+        <ImageView
+            android:id="@+id/starCoinIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/star_coin"
+            android:contentDescription="Star Coin Icon"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/taskRewardTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Поле "Завершено" с иконкой -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_gravity="end">
+
+        <!-- Иконка завершения -->
+        <ImageView
+            android:id="@+id/returnIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_return"
+            android:contentDescription="Return Icon"
+            android:layout_marginEnd="24dp" />
+
+        <!-- Текст "Завершено" -->
+        <TextView
+            android:id="@+id/taskCompletedStatusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Завершено"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_green_dark" />
+    </LinearLayout>
+</LinearLayout>
+

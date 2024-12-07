@@ -93,6 +93,38 @@ class TaskRepositoryImpl(
         }
     }
 
+    override suspend fun revertTaskStatus(task: Task): Result<Unit> {
+        return try {
+            // Ищем документ задачи по полю id
+            val taskQuery = firebaseFirestore.collection("tasks")
+                .whereEqualTo("id", task.id) // Ищем задачу по значению поля id
+
+            val querySnapshot = taskQuery.get().await()
+
+            if (querySnapshot.isEmpty) {
+                Log.e("RevertTaskStatus", "Task not found with ID: ${task.id}")
+                return Result.failure(Exception("Task not found"))
+            }
+
+            // Получаем ID документа задачи
+            val taskDocumentId = querySnapshot.documents.first().id
+            Log.d("RevertTaskStatus", "Task Document ID: $taskDocumentId")
+
+            // Получаем ссылку на этот документ
+            val taskRef = firebaseFirestore.collection("tasks").document(taskDocumentId)
+
+            // Устанавливаем статус задачи в null
+            taskRef.update("status", null).await()
+
+            Log.d("RevertTaskStatus", "Task status reverted to null for task ID: ${task.id}")
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("RevertTaskStatus", "Error reverting task status: ${e.localizedMessage}", e)
+            Result.failure(e)
+        }
+    }
+
 
 
 

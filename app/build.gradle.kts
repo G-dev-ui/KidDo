@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.play.services.mlkit.text.recognition.common)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.androidx.swiperefreshlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
