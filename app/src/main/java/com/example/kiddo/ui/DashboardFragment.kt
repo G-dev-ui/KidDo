@@ -40,6 +40,7 @@ class DashboardFragment : Fragment() {
     private var selectedMemberId: String? = null // Переменная для хранения выбранного члена семьи
 
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -79,6 +80,8 @@ class DashboardFragment : Fragment() {
 
         // Наблюдаем за задачами
         observeTasks()
+
+        observeUserRole()
 
         // Настройка SwipeRefreshLayout
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -213,6 +216,21 @@ class DashboardFragment : Fragment() {
             }
         }
     }
+
+    private fun observeUserRole() {
+        familyViewModel.userRole.observe(viewLifecycleOwner) { role ->
+            // Показываем кнопку только если роль "Parent" или другая подходящая
+            binding.addTaskButton.visibility = if (role == "Родитель") {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
+
+        // Запускаем получение роли
+        familyViewModel.fetchUserRole()
+    }
+
     private fun completeTask(task: Task) {
         taskViewModel.completeTask(task) // Передаем задачу в ViewModel
     }

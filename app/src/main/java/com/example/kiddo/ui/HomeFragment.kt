@@ -27,6 +27,8 @@ class HomeFragment : Fragment() {
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
+        // Проверка авторизации пользователя
+        checkUserAuthentication()
 
         (activity as MainActivity).showBottomNavigationView()
 
@@ -55,6 +57,14 @@ class HomeFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun checkUserAuthentication() {
+        val currentUser = authViewModel.getCurrentUser()
+        if (currentUser == null) {
+            // Пользователь не авторизован, перенаправляем на экран регистрации
+            findNavController().navigate(R.id.action_homeFragment_to_registrationFragment)
+        }
     }
 
     override fun onDestroyView() {

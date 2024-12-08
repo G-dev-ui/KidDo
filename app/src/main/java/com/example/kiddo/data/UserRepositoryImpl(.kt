@@ -29,6 +29,24 @@ class UserRepositoryImpl(
         }
     }
 
+    override suspend fun getCurrentUserRole(): String? {
+        return try {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val userId = currentUser?.uid
+
+            if (userId != null) {
+                val user = getUserData(userId)
+                user?.role
+            } else {
+                Log.e("UserRepository", "No user is currently logged in.")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Error fetching current user role: ${e.localizedMessage}")
+            null
+        }
+    }
+
     override suspend fun createChildAccount(
         parentId: String,
         child: User,

@@ -116,7 +116,28 @@ class TaskRepositoryImpl(
             // Устанавливаем статус задачи в null
             taskRef.update("status", null).await()
 
-            Log.d("RevertTaskStatus", "Task status reverted to null for task ID: ${task.id}")
+            // Проверяем, что assignedToId не равен null перед поиском пользователя
+            val assignedToId = task.assignedToId
+            if (assignedToId == null) {
+                Log.e("RevertTaskStatus", "Assigned user ID is null.")
+                return Result.failure(Exception("Assigned user ID is null"))
+            }
+
+            // Получаем пользователя, который был назначен на задачу
+            val userRef = firebaseFirestore.collection("users").document(assignedToId)
+
+            // Получаем документ пользователя
+            val userDocumentSnapshot = userRef.get().await()
+
+            if (!userDocumentSnapshot.exists()) {
+                Log.e("RevertTaskStatus", "User not found with ID: $assignedToId")
+                return Result.failure(Exception("User not found"))
+            }
+
+            // Уменьшаем количество starCoins пользователя
+            userRef.update("starCoins", FieldValue.increment(-task.reward.toLong())).await()
+
+            Log.d("RevertTaskStatus", "Reward reverted for user: ${task.reward} starCoins deducted")
 
             Result.success(Unit)
         } catch (e: Exception) {
@@ -124,6 +145,7 @@ class TaskRepositoryImpl(
             Result.failure(e)
         }
     }
+
 
 
 

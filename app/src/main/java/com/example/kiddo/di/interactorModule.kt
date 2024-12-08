@@ -6,6 +6,8 @@ import com.example.kiddo.domain.CompleteTaskUseCase
 import com.example.kiddo.domain.CreateChildAccountUseCase
 import com.example.kiddo.domain.CreateChildAccountUseCaseImpl
 import com.example.kiddo.domain.CreateTaskUseCase
+import com.example.kiddo.domain.GetCurrentUserRoleUseCase
+import com.example.kiddo.domain.GetCurrentUserUseCase
 import com.example.kiddo.domain.GetFamilyMembersUseCase
 import com.example.kiddo.domain.GetFamilyUseCase
 import com.example.kiddo.domain.GetTasksUseCase
@@ -26,4 +28,6 @@ val interactorModule = module {
     factory { CompleteTaskUseCase(get()) }
     factory { GetUserStarCoinsUseCase(get()) }
     factory { RevertTaskStatusUseCase(get()) }
+    single { GetCurrentUserRoleUseCase(get()) }
+    single { GetCurrentUserUseCase(get()) }
 }

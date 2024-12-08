@@ -11,6 +11,36 @@ class FamilyRepositoryImpl(
     private val firestore: FirebaseFirestore
 ) : FamilyRepository {
 
+
+    // Получение текущего пользователя
+   override suspend fun getCurrentUser(userId: String): User? {
+        return try {
+            val userDoc = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            if (userDoc.exists()) {
+                val name = userDoc.getString("name") ?: "Unknown"
+                val role = userDoc.getString("role") ?: "Unknown"
+                val familyId = userDoc.getString("familyId") ?: "Unknown"
+
+                User(
+                    id = userDoc.id,
+                    name = name,
+                    role = role,
+                    familyId = familyId
+                )
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Error fetching current user: ${e.message}")
+            null
+        }
+    }
+
+
     private suspend fun getCurrentUserFamilyId(): String? {
         val currentUser = FirebaseAuth.getInstance().currentUser
         return if (currentUser != null) {
