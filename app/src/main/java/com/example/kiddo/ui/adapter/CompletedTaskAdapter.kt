@@ -10,7 +10,8 @@ import com.example.kiddo.R
 import com.example.kiddo.domain.model.Task
 
 class CompletedTaskAdapter(
-    private val onReturnTaskClick: (Task) -> Unit // Обработчик клика на возврат задачи
+    private val onReturnTaskClick: (Task) -> Unit,
+    private val userRole: String // Передаем роль пользователя
 ) : RecyclerView.Adapter<CompletedTaskAdapter.CompletedTaskViewHolder>() {
 
     private var completedTasks: List<Task> = emptyList()
@@ -37,17 +38,20 @@ class CompletedTaskAdapter(
         private val taskTitleTextView: TextView = itemView.findViewById(R.id.taskTitleTextView)
         private val taskAssignedToTextView: TextView = itemView.findViewById(R.id.taskAssignedToTextView)
         private val taskRewardTextView: TextView = itemView.findViewById(R.id.taskRewardTextView)
-        private val returnIcon: ImageView = itemView.findViewById(R.id.returnIcon) // Добавляем иконку возврата
+        private val returnIcon: ImageView = itemView.findViewById(R.id.returnIcon)
 
         fun bind(task: Task) {
             taskTitleTextView.text = task.title
             taskAssignedToTextView.text = "Выполнил: ${task.assignedToName}"
             taskRewardTextView.text = task.reward.toString()
 
-            // Обработчик клика на иконку возврата задачи
+            // Устанавливаем видимость returnIcon в зависимости от роли
+            returnIcon.visibility = if (userRole == "Родитель") View.VISIBLE else View.INVISIBLE
+
             returnIcon.setOnClickListener {
                 onReturnTaskClick(task)
             }
         }
     }
 }
+

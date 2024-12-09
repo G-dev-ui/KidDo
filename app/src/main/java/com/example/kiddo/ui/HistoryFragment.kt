@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kiddo.databinding.FragmentHistoryBinding
 import com.example.kiddo.domain.model.Task
+import com.example.kiddo.presentation.FamilyViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.kiddo.presentation.TaskViewModel
 import com.example.kiddo.ui.adapter.CompletedTaskAdapter
@@ -21,6 +22,7 @@ class HistoryFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: TaskViewModel by viewModel()
+    private val roleviewModel: FamilyViewModel by viewModel()
     private lateinit var completedTaskAdapter: CompletedTaskAdapter
 
     override fun onCreateView(
@@ -34,24 +36,34 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        completedTaskAdapter = CompletedTaskAdapter { task ->
-            showRevertTaskDialog(task) // Вызываем функцию для отображения диалога
+        // Запрашиваем роль пользователя
+        roleviewModel.fetchUserRole()
+
+        // Наблюдаем за ролью и настраиваем адаптер
+        roleviewModel.userRole.observe(viewLifecycleOwner) { role ->
+            role?.let { setupAdapter(it) }
         }
+
+        // Настраиваем SwipeRefreshLayout
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.loadCompletedTasks()
+        }
+
+        observeViewModel()
+        viewModel.loadCompletedTasks()
+    }
+
+    private fun setupAdapter(userRole: String) {
+        completedTaskAdapter = CompletedTaskAdapter(
+            onReturnTaskClick = { task -> showRevertTaskDialog(task) },
+            userRole = userRole // Передаем роль в адаптер
+        )
 
         // Настраиваем RecyclerView
         binding.completedTasksRecyclerView.apply {
             adapter = completedTaskAdapter
             layoutManager = LinearLayoutManager(requireContext())
         }
-
-        // Настраиваем SwipeRefreshLayout
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            // Загружаем выполненные задачи заново
-            viewModel.loadCompletedTasks()
-        }
-
-        observeViewModel()
-        viewModel.loadCompletedTasks()
     }
 
     private fun observeViewModel() {
@@ -80,11 +92,9 @@ class HistoryFragment : Fragment() {
             .setTitle("Отменить сданное дело?")
             .setMessage("Если не справились с заданием, дело вернется в список активных дел.")
             .setPositiveButton("Оставить") { dialogInterface, _ ->
-                // Если пользователь нажал "Оставить", не делаем ничего
                 dialogInterface.dismiss()
             }
             .setNegativeButton("Отменить") { dialogInterface, _ ->
-                // Если пользователь нажал "Отменить", выполняем revertTaskStatus
                 viewModel.revertTaskStatus(task)
                 dialogInterface.dismiss()
             }
@@ -98,3 +108,4 @@ class HistoryFragment : Fragment() {
         _binding = null
     }
 }
+

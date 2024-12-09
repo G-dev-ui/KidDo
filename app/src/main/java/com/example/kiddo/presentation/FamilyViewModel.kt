@@ -8,7 +8,6 @@ import com.example.kiddo.domain.GetCurrentUserRoleUseCase
 import com.example.kiddo.domain.GetCurrentUserUseCase
 import com.example.kiddo.domain.GetFamilyUseCase
 import com.example.kiddo.domain.GetUserStarCoinsUseCase
-import com.example.kiddo.domain.GetUserUseCase
 import com.example.kiddo.domain.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -29,8 +28,8 @@ class FamilyViewModel(
     private val _userRole = MutableStateFlow<String?>(null)
     val userRole = _userRole.asLiveData()
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser = _currentUser.asLiveData()
+ // private val _currentUser = MutableStateFlow<User?>(null)
+ // val currentUser = _currentUser.asLiveData()
 
 
     fun fetchFamilyMembers() {
@@ -66,14 +65,14 @@ class FamilyViewModel(
         }
     }
 
-    fun fetchCurrentUser(userId: String) {
-        viewModelScope.launch {
-            try {
-                val user = getCurrentUserUseCase.execute(userId) // Используем новый UseCase
-                _currentUser.value = user
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+   // fun fetchCurrentUser(userId: String) {
+   //     viewModelScope.launch {
+   //         try {
+   //             val user = getCurrentUserUseCase.execute(userId) // Используем новый UseCase
+   //             _currentUser.value = user
+   //         } catch (e: Exception) {
+   //             e.printStackTrace()
+   //         }
+   //     }
+   // }
 }

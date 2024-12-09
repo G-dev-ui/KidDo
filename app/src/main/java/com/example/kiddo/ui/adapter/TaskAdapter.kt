@@ -10,6 +10,7 @@ import com.example.kiddo.R
 import com.example.kiddo.domain.model.Task
 
 class TaskAdapter(
+    private val currentUserId: String?, // ID текущего пользователя
     private val onCompleteTask: (Task) -> Unit // Callback для завершения задачи
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
@@ -29,9 +30,17 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = tasks[position]
+
         holder.taskTitleTextView.text = task.title
         holder.taskAssignedToTextView.text = "Взял: ${task.assignedToName ?: "Не назначено"}"
         holder.taskRewardTextView.text = task.reward.toString()
+
+        // Показываем кнопку завершения только если текущий пользователь совпадает с assignedToId
+        holder.completeButton.visibility = if (currentUserId == task.assignedToId) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
 
         // Обработка нажатия на кнопку завершения
         holder.completeButton.setOnClickListener {
@@ -46,3 +55,4 @@ class TaskAdapter(
         notifyDataSetChanged()
     }
 }
+

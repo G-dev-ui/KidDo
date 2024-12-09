@@ -19,6 +19,7 @@ import com.example.kiddo.ui.adapter.AccountAdapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.firebase.auth.FirebaseAuth
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.Calendar
 
 
 class AccountSwitchingFragment : Fragment() {
@@ -49,6 +50,14 @@ class AccountSwitchingFragment : Fragment() {
         setupRecyclerView()
         initializeBottomSheet()
 
+        // Устанавливаем обработчик нажатия на поле даты рождения
+        binding.etDateOfBirth.setOnClickListener {
+            if (!binding.etDateOfBirth.isEnabled) {
+                binding.etDateOfBirth.isEnabled = true // Включаем поле
+            }
+            showDatePickerDialog()
+        }
+
         // Наблюдаем за изменениями данных пользователя
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null) {
@@ -75,6 +84,25 @@ class AccountSwitchingFragment : Fragment() {
         // Запрос данных
         viewModel.fetchUserData()
         viewModel.fetchFamilyMembers()
+    }
+
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = android.app.DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                // Устанавливаем выбранную дату в поле
+                val formattedDate = String.format("%02d-%02d-%d", selectedDay, selectedMonth + 1, selectedYear)
+                binding.etDateOfBirth.setText(formattedDate)
+            },
+            year, month, day
+        )
+
+        datePickerDialog.show()
     }
 
     private fun setupRecyclerView() {

@@ -65,6 +65,7 @@
         android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp"
+        android:visibility="gone"
         app:behavior_hideable="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         app:layout_constraintBottom_toBottomOf="parent"

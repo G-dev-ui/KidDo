@@ -19,6 +19,7 @@ import com.example.kiddo.ui.adapter.CategoryAdapter
 import com.example.kiddo.ui.adapter.TaskAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.auth.FirebaseAuth
 import java.util.UUID
 
 
@@ -139,11 +140,14 @@ class DashboardFragment : Fragment() {
         binding.categoryRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        // Получаем текущего пользователя
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
         // Настроим RecyclerView для задач
         binding.tasksRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        taskAdapter = TaskAdapter { task ->
+        taskAdapter = TaskAdapter(currentUserId) { task ->
             completeTask(task) // Вызываем метод завершения задачи
-        } // Инициализируем адаптер для задач
+        }
         binding.tasksRecyclerView.adapter = taskAdapter
     }
 
@@ -223,7 +227,7 @@ class DashboardFragment : Fragment() {
             binding.addTaskButton.visibility = if (role == "Родитель") {
                 View.VISIBLE
             } else {
-                View.GONE
+                View.INVISIBLE
             }
         }
 
